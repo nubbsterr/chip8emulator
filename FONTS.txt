@@ -1,0 +1,12 @@
+Below is the binary data for the letter F for the Chip8:
+
+11110000
+10000000
+11110000
+10000000
+10000000
+
+This can also be shown in hex as: 0xF0, 0x80, 0xF0, 0x80, 0x80.
+
+The 1s form a F shape! Each 1 in this binary data shows a pixel turned on, while 0s are pixels turned off.
+This is how fonts will function in our emulator :)
