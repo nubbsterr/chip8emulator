@@ -1,4 +1,6 @@
 #include "chip8data.h"
+#include <cstdint>
+#include <ctime>
 
 const unsigned int START_ADDRESS = 0x200;        // start address for Chip8, since 0x00 to 0x1FF is reserved for the Chip8
 const unsigned int FONTSET_SIZE = 80;            // 16 characters used in total, each character is 5 bytes, so we have 80 bytes to use for font storage
@@ -68,6 +70,36 @@ Chip8::Chip8()
 
 	// Get random integer from distribution, 255U means UNSIGNED 255, constants/literals can have suffixes for this stuff
 	randByte = std::uniform_int_distribution<uint8_t>(0, 255U);
+}
 
+void Chip8::OP_00E0()
+{
+	memset(video, 0, sizeof(video));
+}
 
+void Chip8::OP_00EE()
+{
+    --sp;
+    pc = stack[sp];
+}
+
+void Chip8::OP_1nnn()
+{
+    uint16_t address = opcode & 0x0FFFu;
+    /*
+    0x0FFF is 12 bits of 1s in binary, opcode is 16 bits,
+    where the first 4 bits are to identify the opcode as a JUMP,
+    and the remaining 12 is the JUMP address!
+    */
+    pc = address; // next instruction to run will be at JUMP address naturally
+}
+
+void Chip8::OP_2nnn()
+{
+    // Same logic as previous opcode, gets address of next instruction
+	uint16_t address = opcode & 0x0FFFu;
+
+	stack[sp] = pc; // set pc to sp index
+	++sp;
+	pc = address;   // set pc to next instruction to execute
 }

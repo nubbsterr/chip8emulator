@@ -5,6 +5,7 @@
 #include <chrono>  // for system clock, to seed PRNG
 #include <cstdint> // for fixed width ints below
 #include <fstream> // for file IO with ROM files
+#include <cstring> // for memset function in 00E0 opcode
 
 class Chip8
 {
@@ -15,7 +16,7 @@ public:
     uint16_t index{};           // 16-bit Index Register, store memory address in use for operations, 16-bit to hold max 0xFFF (4095) memory address
     uint16_t pc{};              // Program Counter to point to next address of next instruction to execute
     uint16_t stack[16]{};       // 16-level stack, basically allows 16 PCs/program counters at once, more stuff can be executed
-    uint8_t sp{};               // 6-bit stack pointer, increments every time we call something and decrements when we return
+    uint8_t sp{};               // 8-bit stack pointer, increments every time we call something and decrements when we return
     uint8_t delayTimer{};       // Timer used for timing. Decrements at a rate of 60Hz
     uint8_t soundTimer{};       // Sound timer, plays a buzz/tone when non-zero, decrements at a rate of 60Hz
     uint8_t keypad[16]{};       // 16 input keys, mapped as 1234, QWER, ASDF, ZXCV for this implementation
@@ -26,5 +27,12 @@ public:
 	std::uniform_int_distribution<uint8_t> randByte; // return uniformly distributed random integers over a given interval, returns unsigned 8-bit int
 
     void LoadROM(char const* filename); // load ROM file instructions into memory, starting at 0x200
+
+private:
+    void OP_00E0(); // CLS, Clear Screen Opcode, set video memory buffer entirely to 0
+    void OP_00EE(); // RET, Return from a Subroutine, decrement sp and set pc equal to stack[sp], last instruction done before subroutine
+    void OP_1nnn(); // JP addr, Jump to location 'nnn', sets pc to no stack interaction needed,
+    void OP_2nnn(); // CALL addr, Call subroutine at 'nnn'
+
 };
 #endif
