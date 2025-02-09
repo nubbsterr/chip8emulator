@@ -7,6 +7,9 @@
 #include <fstream> // for file IO with ROM files
 #include <cstring> // for memset function in 00E0 opcode
 
+const unsigned int VIDEO_HEIGHT = 32;
+const unsigned int VIDEO_WIDTH = 64;
+
 class Chip8
 {
 public:
@@ -47,6 +50,22 @@ private:
     void OP_8xy6(); // SHR Vx, perform right shift on value in regsiter Vx and save least significant bit in register VF.
     void OP_8xy7(); // SUBN Vx, Vy, subtract value in register Vy from register Vx and store result in register Vx. Set carry flag to 1 in VF if Vy > Vx.
     void OP_8xyE(); // SHL Vx, perform left shift on value in register Vx and save most significant bit in register VF.
+    void OP_9xy0(); // SNE Vx, Vy, skip next instruction if value in register Vx != val in Vy
+    void OP_Annn(); // LD I, addr, set index register value to address
+    void OP_Bnnn(); // JP V0, addr, jump to address location + value in register V0
+    void OP_Cxkk(); // RND, Vx, byte, set register Vx to some random byte AND byte (perform logical AND on byte and Random value in Vx)
+    void OP_Dxyn(); /* DRW, Vx, Vy, nibble, draw n-byte sprite starting at memory location I at (Vx, Vy), set register VF = collision
+                    * Iterate raw by row and column by column over 8 columns; every sprite is 8 pixels wide/8 columns wide.
+                    * While drawing, check if there is already a sprite pixel on the location we are drawing.
+                    * If a sprite collides with another sprite/overlaps, we set register VF to 'collision' or 1.
+                    * When collision occurs, perform XOR operation on the pixel at the video memory/screen location.
+                    */
+    void OP_Ex9E(); // SKP Vx, skip next instruction if key of value in register Vx is pressed
+    void OP_ExA1(); // SKNP Vx, skip next instruction if key of value in register Vx is NOT pressed
+    void OP_Fx07(); // LD Vx, DT, load delay timer value into register Vx
+    void OP_Fx0A(); // LD Vx, K, load value of pressed key into register Vx, repeat instruction until key is pressed
+    void OP_Fx15(); // LD DT, Vx, set value in register Vx as delay timer value
+    void OP_Fx18(); // LD ST, Vx, set value in register Vx as sound timer value
 
 };
 #endif
